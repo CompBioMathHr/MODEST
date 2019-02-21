@@ -493,7 +493,7 @@ int main(int argc, char *argv[]) {
 						}
 					}
 				if (nos==0) iter=iter+noi; // end iteration 
-				else {
+				else {  // MODEST part of code
 					if (iter<=4) {
 		
 						for(int i=0; i<mw; i++)
@@ -545,6 +545,7 @@ int main(int argc, char *argv[]) {
 						
 						for(int l=0; l<nos; l++) listmax2[l]=listmax[l]; 
 						
+						// sort (simple buble sort) to find out which elements are in the worst 25%
 						float temp; 
 						for(int l1=0; l1<nos; l1++)
 							for(int l2=l1+1; l2<nos; l2++)
@@ -553,10 +554,10 @@ int main(int argc, char *argv[]) {
 									listmax2[l2]=listmax2[l1]; 
 									listmax2[l1]=temp; 
 									}
-
-						int din=nos/4; // down index 
+						
+						int din=nos/4; // down index = index of the 25%-th element in the sorted list
 						float down=0; 
-						if (din>0) down=listmax2[din]; 
+						if (din>0) down=listmax2[din]; // down = value of the 25%-th element in the sorted list
 						
 							
 						/**********************************/
@@ -575,7 +576,7 @@ int main(int argc, char *argv[]) {
 						printf("Thrown out %d\n", nos-newnos);  
 						nos=newnos; 
 						}// iter<4
-					}
+					} // END MODEST part of code
 				} // end iteration for loop 
 			
 			
