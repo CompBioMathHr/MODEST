@@ -4,7 +4,7 @@
 proteome="AT.fasta"     # proteome in fasta format
 numotifs=3              # number of motifs
 scale=[10,10,10]        # list of scales, one for each motif
-th=0                    # threshold 0=IGOSS, usually 0.001
+th=0                    # threshold 0=IGLOSS, usually 0.001
 
 import os
 
