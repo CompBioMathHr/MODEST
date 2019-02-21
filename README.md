@@ -3,13 +3,9 @@ MODEST: motif outlier detection system (combined with IGLOSS)
 Program takes five arguments:
 
 proteome_file_name
-
 query_file_name
-
 scale
-
 number_of_iterations
-
 threshold
 
 Proteome file can be in fasta or text format.
