@@ -21,4 +21,4 @@ Threshold is used for discarding positives. Threshold 0 means no discarding. One
 
 MODEST.cpp calls logistic.py to make a logistic fit of the data.
 
-handlemore.py is python script that combines more motif searches into one tsv table.
+handlemore.py is python script that combines more motif searches into one tsv table that consists of hits found in all searches.
