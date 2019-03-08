@@ -46,6 +46,7 @@ struct atom {
 	int row; 
 	int rowpos; // row position
 	float Evalue; 
+	long double postScore; 
 	}; 
 	
 float f(int x) {
@@ -493,90 +494,85 @@ int main(int argc, char *argv[]) {
 						}
 					}
 				if (nos==0) iter=iter+noi; // end iteration 
-				else {  // MODEST part of code
+				else {
 					if (iter<=4) {
 		
-						for(int i=0; i<mw; i++)
-							for(int j=0; j<20; j++) mof[i][j]=0;   
-     
-						for(int i=0; i<mw; i++) 
+						float mof2[mw][20];  // matrix of frequencies 2
+						float lom2[mw][20];  // logaritmic model 2
+			 		
+	
+						for(int i=0; i<mw; i++) // set mof2 to be zero matrix
+							for(int j=0; j<AL; j++) mof2[i][j]=0;   
+
+
+						for(int i=0; i<mw; i++) { // fill the mof2 with empirical frequencies
 							for(int l=0; l<nos; l++) {
 								int a=findindex(motif[l].sequence[i]); 
-								mof[i][a]=mof[i][a]+1; 
+									mof2[i][a]=mof2[i][a]+1;  
 								}
-		
+							}
 				
-						for(int i=0; i<mw; i++)
+						for(int i=0; i<mw; i++) // add pseudo count
 							for(int j=0; j<20; j++) {
-								wm[i][j]=mof[i][j]/(float)nos;
-								wm[i][j]=(wm[i][j]+0.01/(float)nos)/(1.0+0.2/(float)nos); 
-								wm[i][j]=log(wm[i][j])-log(background[j]);
+								mof2[i][j]=mof2[i][j]/(float)nos; 
+								mof2[i][j]=(mof2[i][j]+0.01/(float)nos)/(1.0+0.2/(float)nos); 
+							}				
+				
+						for(int i=0; i<mw; i++) {
+							for(int j=0; j<20; j++) {
+								lom2[i][j]=log(mof2[i][j])-log(background[j]); // compute PSSM lom
 								}
-								
+							}
+						for(int l=0; l<nos; l++) {
+							motif[l].postScore=0; 
+							for(int i=0; i<mw; i++) 
+								motif[l].postScore=motif[l].postScore+lom2[i][findindex(motif[l].sequence[i])];  
+								motif[l].postScore=exp(motif[l].postScore); 
+							}
+		
+						
+						long double list[nos];
+						long double listmean=0;   
+						
 						
 						for(int l=0; l<nos; l++) {
-							int i = motif[l].row-1;
-							for(int k=0; k<rowlength[i]+mw-1; k++) haming[i][k]=0;
-							} 
-	
-	   
-						for(int l=0; l<nos; l++) {
-							int i = motif[l].row-1; 	
-							for(int j=0; j<20; j++)
-								for(int k=0; k<aminoacidnu[i][j]; k++) 
-									for(int z=0; z<mw; z++) haming[i][pos[i+j*nurows][k]+mw-1-z]+=wm[z][j]; 
+							list[l]=motif[l].postScore; 
+							listmean=listmean+list[l]/(float)nos; 								
 							}
 						
-						/***********************************/
-						
-						float listmax[nos];
-						float listmean=0;   
-						
-						for(int l=0; l<nos; l++) listmax[l]=0; 
-						
-						for(int l=0; l<nos; l++) {
-							int i = motif[l].row-1;
-							for(int k=mw-1; k<rowlength[i]+mw-1; k++) 
-								if (listmax[l]<exp(haming[i][k])) listmax[l]=exp(haming[i][k]); 
-							listmean=listmean+listmax[l]/(float)nos; 								
-							}
-						
-						float listmax2[nos]; 
-						
-						for(int l=0; l<nos; l++) listmax2[l]=listmax[l]; 
-						
-						// sort (simple buble sort) to find out which elements are in the worst 25%
 						float temp; 
 						for(int l1=0; l1<nos; l1++)
 							for(int l2=l1+1; l2<nos; l2++)
-							    if (listmax2[l1]>listmax2[l2]) {
-									temp=listmax2[l2]; 
-									listmax2[l2]=listmax2[l1]; 
-									listmax2[l1]=temp; 
+								if (list[l1]>list[l2]) {
+									temp=list[l2]; 
+									list[l2]=list[l1]; 
+									list[l1]=temp; 
 									}
-						
-						int din=nos/4; // down index = index of the 25%-th element in the sorted list
+
+						int din=nos/4; // down index 
 						float down=0; 
-						if (din>0) down=listmax2[din]; // down = value of the 25%-th element in the sorted list
+						if (din>0) down=list[din]; 
 						
-							
-						/**********************************/
+  
 						
 						int newnos=0; 
 						for(int l=0; l<nos; l++) {
-							if ((th==0) || (listmax[l]>=listmean*th) || (listmax[l]>=down) ) {
+							if ( ( motif[l].postScore>=th*listmean) || ( motif[l].postScore>=down ) ) {
 								for(int ii=0; ii<=mw; ii++) motif[newnos].sequence[ii]=motif[l].sequence[ii]; 
+								motif[newnos].postScore=motif[l].postScore; 
 								motif[newnos].row=motif[l].row; 
 								motif[newnos].rowpos=motif[l].rowpos; 
 								motif[newnos].Evalue=motif[l].Evalue; 
 								newnos++; 
-								}
-								  
+								} 
 							}
+						
+ 	
+
 						printf("Thrown out %d\n", nos-newnos);  
 						nos=newnos; 
 						}// iter<4
-					} // END MODEST part of code
+					}
 				} // end iteration for loop 
 			
 			
